@@ -5,7 +5,7 @@ console.log('Content script loaded.');
 (function detectThreats() {
     // Example: List of suspicious keywords/domains (expand as needed)
     const suspiciousKeywords = ['login', 'verify', 'update', 'password', 'bank', 'account', 'secure'];
-    const suspiciousDomains = ['phishy-example.com', 'malicious-site.net'];
+    const suspiciousDomains = ['phishysite.com', 'malicious-site.net'];
     let threatDetected = false;
     let threatDetails = [];
 
@@ -24,7 +24,7 @@ console.log('Content script loaded.');
         }
     });
 
-    // Example: Check for password fields (phishing forms)
+    // Check for password fields (phishing forms)
     if (document.querySelector('input[type="password"]')) {
         threatDetected = true;
         threatDetails.push('Password field detected on this page.');
