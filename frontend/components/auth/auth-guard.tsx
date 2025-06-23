@@ -2,21 +2,28 @@
 
 import type React from "react"
 import { useAuth0 } from "@auth0/auth0-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { LoadingSpinner } from "./loading-spinner"
 import { LoginPage } from "./login-page"
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isLoading, isAuthenticated, error, loginWithRedirect } = useAuth0()
+  const { isLoading, isAuthenticated, error, user } = useAuth0()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Force redirect to login if not authenticated and not loading
-    if (!isLoading && !isAuthenticated && !error) {
-      console.log("User not authenticated, redirecting to login...")
-      // Uncomment the line below to force immediate redirect
-      // loginWithRedirect()
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      console.log("Auth State:", { isLoading, isAuthenticated, user, error })
     }
-  }, [isLoading, isAuthenticated, error, loginWithRedirect])
+  }, [mounted, isLoading, isAuthenticated, user, error])
+
+  // Don't render anything until mounted (prevents hydration issues)
+  if (!mounted) {
+    return <LoadingSpinner />
+  }
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -32,17 +39,19 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
           >
-            Try Again
+            Retry
           </button>
         </div>
       </div>
     )
   }
 
-  // STRICT: Only render children if authenticated
+  // STRICT CHECK: Must be authenticated to proceed
   if (!isAuthenticated) {
+    console.log("User not authenticated, showing login page")
     return <LoginPage />
   }
 
+  console.log("User authenticated, rendering dashboard")
   return <>{children}</>
 }
