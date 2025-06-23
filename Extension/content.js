@@ -25,28 +25,50 @@ function checkURLForSQLInjection() {
     return { detected: false };
 }
 
+// Import configuration
+const config = window.PhishingConfig || {};
+
 // Detects phishing based on domain and page content
 function detectPhishingPage() {
-    const suspiciousKeywords = ['login', 'verify', 'update', 'password', 'bank', 'account', 'secure'];
-    const suspiciousDomains = ['phishysite.com', 'malicious-site.net'];
+    const { suspiciousKeywords = [], suspiciousDomains = [] } = config;
     let details = [];
+    let threatType = '';
       
     let detected = false;
     if (suspiciousDomains.some(domain => window.location.hostname.includes(domain))) {
         detected = true;
+        threatType = 'Suspicious Domain';
         details.push('Suspicious domain detected: ' + window.location.hostname);
     }
+    
     const bodyText = document.body.innerText.toLowerCase();
+    const foundKeywords = [];
     suspiciousKeywords.forEach(keyword => {
         if (bodyText.includes(keyword)) {
             detected = true;
+            foundKeywords.push(keyword);
             details.push('Suspicious keyword found: ' + keyword);
         }
     });
+    
+    if (foundKeywords.length > 0) {
+        threatType = threatType ? threatType + ' & Suspicious Keywords' : 'Suspicious Keywords';
+    }
+    
     if (document.querySelector('input[type="password"]')) {
         detected = true;
+        threatType = threatType ? threatType + ' & Password Field' : 'Password Field';
         details.push('Password field detected on this page.');
     }
+    
+    // Show alert if threat is detected
+    if (detected) {
+        const alertMessage = `⚠️ SECURITY ALERT ⚠️\n\n` +
+                          `Threat Type: ${threatType}\n\n` +
+                          `Details:\n- ${details.join('\n- ')}`;
+        alert(alertMessage);
+    }
+    
     return { detected, details };
 }
 
