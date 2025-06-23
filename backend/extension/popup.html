@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: system-ui, sans-serif;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #3b82f6;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f0f9ff;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .status.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .btn:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🛡️ CyberSentinel</div>
+    <p>Security Extension</p>
+  </div>
+  
+  <div class="status active">
+    <span>Protection Status</span>
+    <span>🟢 Active</span>
+  </div>
+  
+  <button class="btn" onclick="openDashboard()">
+    Open Dashboard
+  </button>
+  
+  <button class="btn" onclick="runScan()">
+    Scan Current Page
+  </button>
+  
+  <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
+    Version 1.0.0
+  </div>
+
+  <script>
+    function openDashboard() {
+      chrome.tabs.create({ url: 'http://localhost:3000' });
+    }
+    
+    function runScan() {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'scan' });
+      });
+    }
+  </script>
+</body>
+</html>
