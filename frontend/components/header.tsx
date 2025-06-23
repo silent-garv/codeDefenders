@@ -16,8 +16,28 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function Header() {
+  const pathname = usePathname()
+
+  const getPageTitle = () => {
+    switch (pathname) {
+      case "/":
+        return "Dashboard"
+      case "/alerts":
+        return "Alerts"
+      case "/people":
+        return "People"
+      case "/monitoring":
+        return "Monitoring"
+      case "/settings":
+        return "Settings"
+      default:
+        return "Dashboard"
+    }
+  }
+
   const notifications = [
     { id: 1, title: "Critical Alert", message: "Malware detected on system", time: "2 min ago", severity: "high" },
     { id: 2, title: "Warning", message: "Unusual network activity", time: "5 min ago", severity: "medium" },
@@ -36,7 +56,7 @@ export function Header() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              <BreadcrumbPage>{getPageTitle()}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -75,16 +95,37 @@ export function Header() {
             </div>
           </PopoverContent>
         </Popover>
-        <Link href="/settings">
-          <Button variant="ghost" size="icon">
-            <User className="h-4 w-4" />
-          </Button>
-        </Link>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <User className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56" align="end">
+            <div className="space-y-2">
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium">John Doe</p>
+                <p className="text-xs text-muted-foreground">john@example.com</p>
+              </div>
+              <div className="border-t pt-2">
+                <Link href="/settings" className="block px-2 py-1.5 text-sm hover:bg-muted rounded">
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("cybersentinel-auth")
+                    window.location.reload()
+                  }}
+                  className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
         <ThemeToggle />
       </div>
     </header>
   )
 }
-
-// Named export for compatibility
-export { Header as default }

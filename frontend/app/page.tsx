@@ -1,5 +1,5 @@
-import { SettingsContent } from "@/components/settings-content"
+import { DashboardContent } from "@/components/dashboard-content"
 
-export default function SettingsPage() {
-  return <SettingsContent />
+export default function Home() {
+  return <DashboardContent />
 }

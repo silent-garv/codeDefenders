@@ -12,6 +12,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const clientId = process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID!
   const redirectUri = typeof window !== "undefined" ? window.location.origin : ""
 
+  if (!domain || !clientId) {
+    console.error("Auth0 configuration missing. Please check your environment variables.")
+    return <>{children}</>
+  }
+
   return (
     <Auth0Provider
       domain={domain}
