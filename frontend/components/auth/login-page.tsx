@@ -3,69 +3,61 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Github, Mail, Facebook } from "lucide-react"
+import { Shield, Github, Mail } from "lucide-react"
 
 export function LoginPage() {
-  const { loginWithRedirect } = useAuth0()
+  const { loginWithRedirect, isLoading } = useAuth0()
 
   const handleLogin = (connection?: string) => {
     loginWithRedirect({
       authorizationParams: {
         connection: connection,
+        prompt: "login",
       },
     })
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">CS</span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <Card className="w-full max-w-md mx-4 shadow-2xl">
+        <CardHeader className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             CyberSentinel
           </CardTitle>
-          <CardDescription className="text-lg">Advanced Security Monitoring Platform</CardDescription>
+          <CardDescription className="text-gray-600">Secure access to your cybersecurity dashboard</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-6">
-              Sign in to access your security dashboard and monitor threats in real-time
-            </p>
-          </div>
-
-          <Button className="w-full h-12 text-base" onClick={() => handleLogin()} size="lg">
-            Sign In with Auth0
+        <CardContent className="space-y-4">
+          <Button
+            onClick={() => handleLogin("google-oauth2")}
+            disabled={isLoading}
+            className="w-full h-12 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm"
+            variant="outline"
+          >
+            <Mail className="w-5 h-5 mr-3" />
+            Continue with Google
           </Button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
+          <Button
+            onClick={() => handleLogin("github")}
+            disabled={isLoading}
+            className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white"
+          >
+            <Github className="w-5 h-5 mr-3" />
+            Continue with GitHub
+          </Button>
 
-          <div className="grid grid-cols-1 gap-3">
-            <Button variant="outline" className="h-12" onClick={() => handleLogin("google-oauth2")}>
-              <Mail className="mr-2 h-5 w-5" />
-              Continue with Google
-            </Button>
-            <Button variant="outline" className="h-12" onClick={() => handleLogin("github")}>
-              <Github className="mr-2 h-5 w-5" />
-              Continue with GitHub
-            </Button>
-            <Button variant="outline" className="h-12" onClick={() => handleLogin("facebook")}>
-              <Facebook className="mr-2 h-5 w-5" />
-              Continue with Facebook
-            </Button>
-          </div>
+          <Button
+            onClick={() => handleLogin()}
+            disabled={isLoading}
+            className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+          >
+            {isLoading ? "Signing in..." : "Sign in with Auth0"}
+          </Button>
 
-          <div className="text-center text-xs text-muted-foreground">
-            By signing in, you agree to our Terms of Service and Privacy Policy
-          </div>
+          <div className="text-center text-sm text-gray-500 mt-6">Protected by Auth0 authentication</div>
         </CardContent>
       </Card>
     </div>
