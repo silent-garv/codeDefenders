@@ -12,8 +12,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "CyberSentinel - Security Dashboard",
-  description: "Advanced cybersecurity monitoring and alert management platform",
-    generator: 'v0.dev'
+  description: "Advanced cybersecurity monitoring and alert management platform"
 }
 
 export default function RootLayout({
