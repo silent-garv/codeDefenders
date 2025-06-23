@@ -1,5 +1,6 @@
-// background.js
 chrome.runtime.onInstalled.addListener(() => {
+  console.log("✅ CyberSentinel background running");
+});
   console.log('Istalled Extension.');
 });
 
