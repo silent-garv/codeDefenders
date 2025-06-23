@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CyberSentinel Extension",
   "version": "1.0",
-  "description": "Detects and reports malicious URLs to the backend",
+  "description": "Detects and sends suspicious URLs to backend",
   "permissions": [
     "webRequest",
     "webRequestBlocking",
