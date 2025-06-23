@@ -1,12 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || 'https://code-defenders-cih-2-0-1vn9.vercel.app/', // Set to frontend URL in production
+  origin: 'https://code-defenders-cih-2-0-1vn9.vercel.app',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
 }));
+
 app.use(express.json());
 
 // Connected SSE clients
