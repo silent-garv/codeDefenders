@@ -20,14 +20,5 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": [
-    "storage",
-    "webRequest",
-    "webRequestBlocking",
-    "downloads",
-    "tabs"
-  ],
-  "host_permissions": [
-    "*://*/*"
-  ]
+  "permissions": ["storage"]
 }
