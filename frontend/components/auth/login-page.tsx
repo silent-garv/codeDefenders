@@ -3,15 +3,15 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Github, Chrome, Facebook } from "lucide-react"
+import { Github, Mail, Facebook } from "lucide-react"
 
 export function LoginPage() {
-  const { loginWithRedirect, isLoading } = useAuth0()
+  const { loginWithRedirect } = useAuth0()
 
   const handleLogin = (connection?: string) => {
     loginWithRedirect({
       authorizationParams: {
-        connection,
+        connection: connection,
       },
     })
   }
@@ -20,15 +20,23 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Shield className="h-12 w-12 text-blue-600" />
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+            <span className="text-white font-bold text-2xl">CS</span>
           </div>
-          <CardTitle className="text-2xl font-bold">CyberSentinel</CardTitle>
-          <CardDescription>Secure your digital world with advanced threat monitoring</CardDescription>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            CyberSentinel
+          </CardTitle>
+          <CardDescription className="text-lg">Advanced Security Monitoring Platform</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Button onClick={() => handleLogin()} disabled={isLoading} className="w-full" size="lg">
-            {isLoading ? "Signing in..." : "Sign In"}
+        <CardContent className="space-y-6">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-6">
+              Sign in to access your security dashboard and monitor threats in real-time
+            </p>
+          </div>
+
+          <Button className="w-full h-12 text-base" onClick={() => handleLogin()} size="lg">
+            Sign In with Auth0
           </Button>
 
           <div className="relative">
@@ -40,21 +48,24 @@ export function LoginPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <Button variant="outline" onClick={() => handleLogin("google-oauth2")} disabled={isLoading}>
-              <Chrome className="h-4 w-4" />
+          <div className="grid grid-cols-1 gap-3">
+            <Button variant="outline" className="h-12" onClick={() => handleLogin("google-oauth2")}>
+              <Mail className="mr-2 h-5 w-5" />
+              Continue with Google
             </Button>
-            <Button variant="outline" onClick={() => handleLogin("github")} disabled={isLoading}>
-              <Github className="h-4 w-4" />
+            <Button variant="outline" className="h-12" onClick={() => handleLogin("github")}>
+              <Github className="mr-2 h-5 w-5" />
+              Continue with GitHub
             </Button>
-            <Button variant="outline" onClick={() => handleLogin("facebook")} disabled={isLoading}>
-              <Facebook className="h-4 w-4" />
+            <Button variant="outline" className="h-12" onClick={() => handleLogin("facebook")}>
+              <Facebook className="mr-2 h-5 w-5" />
+              Continue with Facebook
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <div className="text-center text-xs text-muted-foreground">
             By signing in, you agree to our Terms of Service and Privacy Policy
-          </p>
+          </div>
         </CardContent>
       </Card>
     </div>

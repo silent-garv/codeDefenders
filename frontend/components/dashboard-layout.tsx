@@ -2,22 +2,17 @@
 
 import type React from "react"
 
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Header } from "@/components/header"
-import { SidebarInset } from "@/components/ui/sidebar"
 
-interface DashboardLayoutProps {
-  children: React.ReactNode
-}
-
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
         <Header />
-        <main className="flex-1 p-6">{children}</main>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   )

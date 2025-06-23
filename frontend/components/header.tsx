@@ -1,8 +1,9 @@
 "use client"
 
-import { Bell, User } from "lucide-react"
+import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { UserProfile } from "@/components/auth/user-profile"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 export function Header() {
@@ -95,35 +95,7 @@ export function Header() {
             </div>
           </PopoverContent>
         </Popover>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <User className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56" align="end">
-            <div className="space-y-2">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">John Doe</p>
-                <p className="text-xs text-muted-foreground">john@example.com</p>
-              </div>
-              <div className="border-t pt-2">
-                <Link href="/settings" className="block px-2 py-1.5 text-sm hover:bg-muted rounded">
-                  Settings
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem("cybersentinel-auth")
-                    window.location.reload()
-                  }}
-                  className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <UserProfile />
         <ThemeToggle />
       </div>
     </header>
