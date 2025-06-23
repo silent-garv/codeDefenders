@@ -25,27 +25,50 @@ function checkURLForSQLInjection() {
     return { detected: false };
 }
 
+// Import configuration
+const config = window.PhishingConfig || {};
+
 // Detects phishing based on domain and page content
 function detectPhishingPage() {
-    const suspiciousKeywords = ['login', 'verify', 'update', 'password', 'bank', 'account', 'secure'];
-    const suspiciousDomains = ['phishysite.com', 'malicious-site.net'];
+    const { suspiciousKeywords = [], suspiciousDomains = [] } = config;
     let details = [];
+    let threatType = '';
+      
     let detected = false;
     if (suspiciousDomains.some(domain => window.location.hostname.includes(domain))) {
         detected = true;
+        threatType = 'Suspicious Domain';
         details.push('Suspicious domain detected: ' + window.location.hostname);
     }
+    
     const bodyText = document.body.innerText.toLowerCase();
+    const foundKeywords = [];
     suspiciousKeywords.forEach(keyword => {
         if (bodyText.includes(keyword)) {
             detected = true;
+            foundKeywords.push(keyword);
             details.push('Suspicious keyword found: ' + keyword);
         }
     });
+    
+    if (foundKeywords.length > 0) {
+        threatType = threatType ? threatType + ' & Suspicious Keywords' : 'Suspicious Keywords';
+    }
+    
     if (document.querySelector('input[type="password"]')) {
         detected = true;
+        threatType = threatType ? threatType + ' & Password Field' : 'Password Field';
         details.push('Password field detected on this page.');
     }
+    
+    // Show alert if threat is detected
+    if (detected) {
+        const alertMessage = `⚠️ SECURITY ALERT ⚠️\n\n` +
+                          `Threat Type: ${threatType}\n\n` +
+                          `Details:\n- ${details.join('\n- ')}`;
+        alert(alertMessage);
+    }
+    
     return { detected, details };
 }
 
@@ -125,3 +148,75 @@ async function checkDomainReputationAPI(domain) {
         });
     }
 })();
+
+// --- Threat Prevention Features (Content Script) ---
+const blockedDomains = ['malicious.com', 'phishing-site.com'];
+
+// 3. Prevent suspicious form submissions
+function blockSuspiciousForms() {
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      try {
+        const action = form.action || window.location.href;
+        if (blockedDomains.some(domain => action.includes(domain))) {
+          e.preventDefault();
+          alert('Form submission blocked: suspicious destination.');
+          console.log('Blocked form submission to:', action);
+        }
+      } catch (err) { console.error(err); }
+    });
+  });
+}
+blockSuspiciousForms();
+const observer = new MutationObserver(blockSuspiciousForms);
+observer.observe(document.body, { childList: true, subtree: true });
+
+// 4. Intercept and block malicious fetch() and XMLHttpRequest calls
+(function() {
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) { 
+    try {
+      if (args[0] && blockedDomains.some(domain => args[0].includes(domain))) {
+        console.log('Blocked fetch to:', args[0]);
+        return Promise.reject(new Error('Blocked by extension'));
+      }
+    } catch (e) { console.error(e); }
+    return originalFetch.apply(this, args);
+  };
+
+  const originalOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    try {
+      if (blockedDomains.some(domain => url.includes(domain))) {
+        console.log('Blocked XHR to:', url);
+        throw new Error('Blocked by extension');
+      }
+    } catch (e) { console.error(e); }
+    return originalOpen.call(this, method, url, ...rest);
+  };
+})();
+
+// 5. Stop execution of dangerous scripts (like eval, atob, execCommand)
+(function() {
+  window.eval = function() {
+    console.log('Blocked eval()');
+    throw new Error('eval() is disabled by extension');
+  };
+  window.atob = function() {
+    console.log('Blocked atob()');
+    throw new Error('atob() is disabled by extension');
+  };
+  document.execCommand = function() {
+    console.log('Blocked execCommand()');
+    throw new Error('execCommand() is disabled by extension');
+  };
+})();
+
+// Optional: Auto-close tab if high-severity threat is detected
+function autoCloseTabIfHighThreat() {
+  // Example: If a threat is detected, send message to background
+  if (window.location.hostname.includes('malicious.com')) {
+    chrome.runtime.sendMessage({ type: 'CLOSE_TAB' });
+  }
+}
+autoCloseTabIfHighThreat();
