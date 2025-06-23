@@ -102,24 +102,13 @@ async function checkWithGoogleSafeBrowsing(urlToCheck) {
   }
 }
 
-// 6. Block navigation if AbuseIPDB or Google Safe Browsing flags the IP/domain
+// 6. Block navigation if domain is in blockedDomains (synchronous only)
 chrome.webRequest.onBeforeRequest.addListener(
-  async function(details) {
+  function(details) {
     try {
       const url = new URL(details.url);
       if (blockedDomains.some(domain => url.hostname.includes(domain))) {
         console.log('Blocked navigation to:', url.hostname);
-        return { cancel: true };
-      }
-      // Google Safe Browsing check
-      const flagged = await checkWithGoogleSafeBrowsing(details.url);
-      if (flagged) {
-        console.log('Blocked by Google Safe Browsing:', details.url);
-        return { cancel: true };
-      }
-      // AbuseIPDB check (use hostname or IP)
-      const abuseFlagged = await checkWithAbuseIPDB(url.hostname);
-      if (abuseFlagged) {
         return { cancel: true };
       }
     } catch (e) { console.error(e); }
@@ -128,3 +117,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["<all_urls>"] },
   ["blocking"]
 );
+
+// You can still use Google Safe Browsing and AbuseIPDB checks, but NOT in a blocking listener.
+// For example, you could notify the user or close the tab after navigation if a threat is detected.
