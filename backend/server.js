@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors({
-  origin: 'https://code-defenders-cih-2-0-1vn9.vercel.app'
+  origin: 'https://code-defenders-cih-2-0-1vn9.vercel.app',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
 }));
 
 app.use(express.json());
