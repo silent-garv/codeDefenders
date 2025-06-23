@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  sendBtn.addEventListener('click', async () => {
+  sendBtn.addEventListener('click', () => {
     spinner.style.display = 'inline-block';
     sendBtn.disabled = true;
     alertBox.classList.remove('show');

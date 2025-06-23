@@ -118,5 +118,36 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["blocking"]
 );
 
+// Store logs and filtered keywords
+let logs = [];
+let filteredKeywords = ['malicious', 'phishing', 'attack', 'virus'];
+
+// Log every visited website
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (details.frameId === 0) {
+    const logEntry = `[${new Date().toLocaleTimeString()}] Visited: ${details.url}`;
+    logs.push(logEntry);
+    if (logs.length > 20) logs.shift(); // keep last 20 logs
+  }
+});
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg && msg.type === 'SEND_ALERT') {
+    const logEntry = `[${new Date().toLocaleTimeString()}] 🚨 Alert sent: ${msg.reason || 'Manual'}`;
+    logs.push(logEntry);
+    if (logs.length > 20) logs.shift();
+    sendResponse({ success: true });
+    return true;
+  }
+  if (msg && msg.type === 'GET_DATA') {
+    sendResponse({
+      logs: logs.slice().reverse(), // latest first
+      keywords: filteredKeywords
+    });
+    return true;
+  }
+});
+
 // You can still use Google Safe Browsing and AbuseIPDB checks, but NOT in a blocking listener.
 // For example, you could notify the user or close the tab after navigation if a threat is detected.
