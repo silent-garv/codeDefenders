@@ -7,17 +7,17 @@ export function Auth0Provider({ children }: { children: React.ReactNode }) {
   const domain = process.env.NEXT_PUBLIC_AUTH0_DOMAIN
   const clientId = process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID
 
+  console.log("Auth0 Config:", { domain, clientId }) // Debug log
+
   if (!domain || !clientId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Required</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Auth0 environment variables are missing. Please configure:
-          </p>
-          <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm font-mono">
-            <div>NEXT_PUBLIC_AUTH0_DOMAIN</div>
-            <div>NEXT_PUBLIC_AUTH0_CLIENT_ID</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Auth0 Configuration Missing</h1>
+          <p className="text-gray-600 mb-4">Required environment variables:</p>
+          <div className="bg-gray-100 p-3 rounded text-sm font-mono text-left">
+            <div>NEXT_PUBLIC_AUTH0_DOMAIN: {domain || "❌ Missing"}</div>
+            <div>NEXT_PUBLIC_AUTH0_CLIENT_ID: {clientId || "❌ Missing"}</div>
           </div>
         </div>
       </div>

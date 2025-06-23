@@ -3,18 +3,29 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Github, Mail } from "lucide-react"
+import { Shield, Github, Mail, AlertCircle } from "lucide-react"
+import { useState } from "react"
 
 export function LoginPage() {
   const { loginWithRedirect, isLoading } = useAuth0()
+  const [loginError, setLoginError] = useState<string | null>(null)
 
-  const handleLogin = (connection?: string) => {
-    loginWithRedirect({
-      authorizationParams: {
-        connection: connection,
-        prompt: "login",
-      },
-    })
+  const handleLogin = async (connection?: string) => {
+    try {
+      setLoginError(null)
+      console.log("Attempting login with connection:", connection)
+
+      await loginWithRedirect({
+        authorizationParams: {
+          connection: connection,
+          prompt: "login",
+          scope: "openid profile email",
+        },
+      })
+    } catch (error) {
+      console.error("Login error:", error)
+      setLoginError("Failed to initiate login. Please try again.")
+    }
   }
 
   return (
@@ -27,9 +38,18 @@ export function LoginPage() {
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             CyberSentinel
           </CardTitle>
-          <CardDescription className="text-gray-600">Secure access to your cybersecurity dashboard</CardDescription>
+          <CardDescription className="text-gray-600">
+            Authentication required to access the security dashboard
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {loginError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{loginError}</span>
+            </div>
+          )}
+
           <Button
             onClick={() => handleLogin("google-oauth2")}
             disabled={isLoading}
@@ -37,7 +57,7 @@ export function LoginPage() {
             variant="outline"
           >
             <Mail className="w-5 h-5 mr-3" />
-            Continue with Google
+            {isLoading ? "Signing in..." : "Continue with Google"}
           </Button>
 
           <Button
@@ -46,7 +66,7 @@ export function LoginPage() {
             className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white"
           >
             <Github className="w-5 h-5 mr-3" />
-            Continue with GitHub
+            {isLoading ? "Signing in..." : "Continue with GitHub"}
           </Button>
 
           <Button
@@ -57,7 +77,7 @@ export function LoginPage() {
             {isLoading ? "Signing in..." : "Sign in with Auth0"}
           </Button>
 
-          <div className="text-center text-sm text-gray-500 mt-6">Protected by Auth0 authentication</div>
+          <div className="text-center text-sm text-gray-500 mt-6">🔒 Secured by Auth0 Authentication</div>
         </CardContent>
       </Card>
     </div>
