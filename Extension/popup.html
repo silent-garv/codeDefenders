@@ -10,8 +10,8 @@
         background: #f5f7fa;
         margin: 0;
         padding: 0;
-        width: 260px;
-        min-height: 200px;
+        width: 320px;
+        min-height: 320px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -84,6 +84,26 @@
         0% { transform: rotate(0deg);}
         100% { transform: rotate(360deg);}
       }
+      .section-title {
+        margin: 18px 0 6px 0;
+        font-size: 1.08em;
+        font-weight: 500;
+        color: #444;
+        text-align: left;
+      }
+      ul {
+        text-align: left;
+        margin: 0 0 10px 0;
+        padding-left: 18px;
+        font-size: 0.98em;
+      }
+      ul li {
+        margin-bottom: 2px;
+      }
+      #logs-list {
+        max-height: 70px;
+        overflow-y: auto;
+      }
     </style>
   </head>
   <body>
@@ -92,6 +112,10 @@
       <button id="send-alert">Send Alert</button>
       <span id="spinner" class="spinner" style="display:none;"></span>
       <div id="alert" class="alert"></div>
+      <div class="section-title">Filtered Keywords:</div>
+      <ul id="keywords-list"></ul>
+      <div class="section-title">Recent Logs:</div>
+      <ul id="logs-list"></ul>
     </div>
     <script src="popup.js"></script>
   </body>

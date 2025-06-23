@@ -1,24 +1,64 @@
-document.getElementById("send-alert").addEventListener("click", () => {
-  const status = document.getElementById("status");
-  status.textContent = "Sending alert...";
+document.addEventListener('DOMContentLoaded', () => {
+  const sendBtn = document.getElementById('send-alert');
+  const alertBox = document.getElementById('alert');
+  const spinner = document.getElementById('spinner');
+  const keywordsList = document.getElementById('keywords-list');
+  const logsList = document.getElementById('logs-list');
 
-  fetch("https://codedefenders-cih-2-0.onrender.com/alert", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: "🚨 Manual alert triggered from popup",
-      timestamp: new Date().toISOString()
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    status.textContent = "✅ Alert sent!";
-    console.log("✅ Sent to backend:", data);
-  })
-  .catch(err => {
-    status.textContent = "❌ Failed to send alert";
-    console.error("❌ Error sending alert:", err);
+  function showAlert(message, type = 'success') {
+    alertBox.textContent = message;
+    alertBox.className = `alert alert-${type} show`;
+    setTimeout(() => {
+      alertBox.classList.remove('show');
+      setTimeout(() => { alertBox.style.display = 'none'; }, 400);
+    }, 2200);
+    alertBox.style.display = 'block';
+  }
+
+  function renderKeywords(keywords) {
+    keywordsList.innerHTML = '';
+    keywords.forEach(k => {
+      const li = document.createElement('li');
+      li.textContent = k;
+      keywordsList.appendChild(li);
+    });
+  }
+
+  function renderLogs(logs) {
+    logsList.innerHTML = '';
+    logs.forEach(log => {
+      const li = document.createElement('li');
+      li.textContent = log;
+      logsList.appendChild(li);
+    });
+  }
+
+  function fetchData() {
+    chrome.runtime.sendMessage({ type: 'GET_DATA' }, (response) => {
+      if (response) {
+        renderKeywords(response.keywords || []);
+        renderLogs(response.logs || []);
+      }
+    });
+  }
+
+  sendBtn.addEventListener('click', async () => {
+    spinner.style.display = 'inline-block';
+    sendBtn.disabled = true;
+    alertBox.classList.remove('show');
+    alertBox.style.display = 'none';
+
+    chrome.runtime.sendMessage({ type: 'SEND_ALERT', reason: 'Manual' }, (res) => {
+      spinner.style.display = 'none';
+      sendBtn.disabled = false;
+      if (res && res.success) {
+        showAlert('✅ Alert sent successfully!', 'success');
+        fetchData();
+      } else {
+        showAlert('❌ Failed to send alert', 'error');
+      }
+    });
   });
+
+  fetchData();
 });
