@@ -2,13 +2,13 @@
 
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { DashboardContent } from "@/components/dashboard-content"
+import { PeopleContent } from "@/components/people-content"
 
-export default function HomePage() {
+export default function PeoplePage() {
   return (
     <AuthGuard>
       <DashboardLayout>
-        <DashboardContent />
+        <PeopleContent />
       </DashboardLayout>
     </AuthGuard>
   )
