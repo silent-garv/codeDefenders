@@ -1,20 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "CyberSentinel Extension",
+  "name": "CyberSentinal",
   "version": "1.0",
-  "description": "Detects and sends suspicious URLs to backend",
-  "permissions": [
-    "webRequest",
-    "webRequestBlocking",
-    "storage"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "description": "A basic Chrome extension for CyberSentinal.",
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html"
-  }
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["config.js", "content.js"]
+    }
+  ],
+  "permissions": ["storage", "webRequest", "webRequestBlocking", "storage"]
+   "host_permissions": ["<all_urls>"]
+}
 }
