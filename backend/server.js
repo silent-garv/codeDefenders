@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || '*', // Set to frontend URL in production
+  origin: process.env.FRONTEND_ORIGIN || 'https://code-defenders-cih-2-0-1vn9.vercel.app/', // Set to frontend URL in production
 }));
 app.use(express.json());
 
