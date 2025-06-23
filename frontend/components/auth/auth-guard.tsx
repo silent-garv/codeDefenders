@@ -1,29 +1,24 @@
 "use client"
 
 import type React from "react"
+
 import { useAuth0 } from "@auth0/auth0-react"
-import { useEffect, useState } from "react"
-import { LoadingSpinner } from "./loading-spinner"
+import { useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { LoginPage } from "./login-page"
+import { LoadingSpinner } from "./loading-spinner"
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isLoading, isAuthenticated, error, user } = useAuth0()
-  const [mounted, setMounted] = useState(false)
+  const { isLoading, isAuthenticated, error, loginWithRedirect } = useAuth0()
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (mounted) {
-      console.log("Auth State:", { isLoading, isAuthenticated, user, error })
+    // If user just logged in and is on a non-dashboard page, redirect to dashboard
+    if (isAuthenticated && pathname === "/settings") {
+      router.push("/")
     }
-  }, [mounted, isLoading, isAuthenticated, user, error])
-
-  // Don't render anything until mounted (prevents hydration issues)
-  if (!mounted) {
-    return <LoadingSpinner />
-  }
+  }, [isAuthenticated, pathname, router])
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -36,22 +31,19 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
           <p className="text-gray-600 mb-4">{error.message}</p>
           <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            onClick={() => loginWithRedirect()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Retry
+            Try Again
           </button>
         </div>
       </div>
     )
   }
 
-  // STRICT CHECK: Must be authenticated to proceed
   if (!isAuthenticated) {
-    console.log("User not authenticated, showing login page")
     return <LoginPage />
   }
 
-  console.log("User authenticated, rendering dashboard")
   return <>{children}</>
 }

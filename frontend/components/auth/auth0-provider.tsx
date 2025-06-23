@@ -4,11 +4,8 @@ import type React from "react"
 import { Auth0Provider as Auth0ProviderBase } from "@auth0/auth0-react"
 
 export function Auth0Provider({ children }: { children: React.ReactNode }) {
-  // Fallback to hardcoded values if env vars are missing (temporary fix)
   const domain = process.env.NEXT_PUBLIC_AUTH0_DOMAIN || "dev-4bvocl4ni1zr3kaa.us.auth0.com"
   const clientId = process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID || "g3C92QQQm2xVfQqkTQUIbaX1znyadkbw"
-
-  console.log("Auth0 Config:", { domain, clientId })
 
   if (!domain || !clientId) {
     return (
@@ -20,7 +17,6 @@ export function Auth0Provider({ children }: { children: React.ReactNode }) {
             <div>NEXT_PUBLIC_AUTH0_DOMAIN: {domain || "❌ Missing"}</div>
             <div>NEXT_PUBLIC_AUTH0_CLIENT_ID: {clientId || "❌ Missing"}</div>
           </div>
-          <p className="text-sm text-gray-500 mt-4">Please configure environment variables in Vercel Dashboard</p>
         </div>
       </div>
     )
@@ -36,6 +32,12 @@ export function Auth0Provider({ children }: { children: React.ReactNode }) {
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}
+      onRedirectCallback={(appState) => {
+        // Always redirect to dashboard after login, not to the returnTo URL
+        if (typeof window !== "undefined") {
+          window.location.href = "/"
+        }
+      }}
     >
       {children}
     </Auth0ProviderBase>
