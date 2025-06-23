@@ -6,9 +6,9 @@ console.log('Content script loaded.');
 // Detects suspicious SQL injection patterns in the URL query string
 function checkURLForSQLInjection() {
     const sqlPatterns = [
-        /('|%27)\s*(or|and)\s*('|%27)?\d+=\d+/i, // e.g. ' or 1=1
-        /('|%27)\s*--/i,                        // e.g. ' --
-        /('|%27);/i,                            // e.g. ';
+        /('|%27)\s*(or|and)\s*('|%27)?\d+=\d+/i, 
+        /('|%27)\s*--/i,
+        /('|%27);/i,
         /(\bUNION\b|\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b)/i, // SQL keywords
         /(\bDROP\b|\bTABLE\b|\bDATABASE\b)/i
     ];
@@ -89,9 +89,9 @@ function checkInsecureCookies() {
     return { detected: false };
 }
 
-// Example: Call a cybersecurity API for domain reputation (placeholder)
+// Call a cybersecurity API for domain reputation (placeholder)
 async function checkDomainReputationAPI(domain) {
-    // Replace with your real API endpoint and key
+    
     const apiUrl = `https://api.example.com/check-domain?domain=${encodeURIComponent(domain)}`;
     try {
         const response = await fetch(apiUrl);
@@ -220,3 +220,56 @@ function autoCloseTabIfHighThreat() {
   }
 }
 autoCloseTabIfHighThreat();
+
+// --- SQL Injection API Integration ---
+const checkedURLs = new Set();
+
+async function checkURLForSQLInjectionAPI(url) {
+    try {
+        const response = await fetch('http://localhost:5001/check-sqli', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error('Error checking SQLi:', e);
+        return { detected: false };
+    }
+}
+
+async function automatedSQLInjectionCheck() {
+    const linkElements = Array.from(document.querySelectorAll('a[href]'));
+    const formElements = Array.from(document.querySelectorAll('form[action]'));
+
+    // Process links
+    for (const link of linkElements) {
+        const fullUrl = new URL(link.href, window.location.origin).toString();
+        if (checkedURLs.has(fullUrl)) continue;
+        checkedURLs.add(fullUrl);
+        const result = await checkURLForSQLInjectionAPI(fullUrl);
+        if (result.detected) {
+            console.warn('SQLi found in link:', fullUrl, result.details);
+            link.style.border = '2px solid red';
+        }
+    }
+
+    // Process forms
+    for (const form of formElements) {
+        const fullUrl = new URL(form.action, window.location.origin).toString();
+        if (checkedURLs.has(fullUrl)) continue;
+        checkedURLs.add(fullUrl);
+        const result = await checkURLForSQLInjectionAPI(fullUrl);
+        if (result.detected) {
+            console.warn('SQLi found in form action:', fullUrl, result.details);
+            form.style.border = '2px solid orange';
+        }
+    }
+}
+
+window.addEventListener('DOMContentLoaded', automatedSQLInjectionCheck);
+const sqliObserver = new MutationObserver(() => {
+    automatedSQLInjectionCheck();
+});
+sqliObserver.observe(document.body, { childList: true, subtree: true });
