@@ -1,50 +1,51 @@
 "use client"
 
-import { Area, AreaChart, XAxis, YAxis } from "recharts"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
 const data = [
-  { time: "00:00", threats: 12, blocked: 8 },
-  { time: "04:00", threats: 19, blocked: 15 },
-  { time: "08:00", threats: 35, blocked: 28 },
-  { time: "12:00", threats: 42, blocked: 35 },
-  { time: "16:00", threats: 28, blocked: 22 },
-  { time: "20:00", threats: 31, blocked: 25 },
-  { time: "24:00", threats: 23, blocked: 18 },
+  { time: "00:00", threats: 12 },
+  { time: "04:00", threats: 8 },
+  { time: "08:00", threats: 23 },
+  { time: "12:00", threats: 45 },
+  { time: "16:00", threats: 32 },
+  { time: "20:00", threats: 18 },
+  { time: "24:00", threats: 15 },
 ]
+
+const chartConfig = {
+  threats: {
+    label: "Threats",
+    color: "hsl(var(--chart-1))",
+  },
+}
 
 export function ThreatChart() {
   return (
-    <ChartContainer
-      config={{
-        threats: {
-          label: "Threats Detected",
-          color: "hsl(var(--chart-1))",
-        },
-        blocked: {
-          label: "Threats Blocked",
-          color: "hsl(var(--chart-2))",
-        },
-      }}
-      className="h-[300px]"
-    >
-      <AreaChart data={data}>
-        <defs>
-          <linearGradient id="fillThreats" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-threats)" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="var(--color-threats)" stopOpacity={0.1} />
-          </linearGradient>
-          <linearGradient id="fillBlocked" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-blocked)" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="var(--color-blocked)" stopOpacity={0.1} />
-          </linearGradient>
-        </defs>
-        <XAxis dataKey="time" />
-        <YAxis />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Area type="monotone" dataKey="blocked" stackId="1" stroke="var(--color-blocked)" fill="url(#fillBlocked)" />
-        <Area type="monotone" dataKey="threats" stackId="1" stroke="var(--color-threats)" fill="url(#fillThreats)" />
-      </AreaChart>
-    </ChartContainer>
+    <Card>
+      <CardHeader>
+        <CardTitle>Threat Detection Timeline</CardTitle>
+        <CardDescription>Real-time threat detection over the last 24 hours</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={data}>
+              <XAxis dataKey="time" />
+              <YAxis />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Area
+                type="monotone"
+                dataKey="threats"
+                stroke="hsl(var(--chart-1))"
+                fill="hsl(var(--chart-1))"
+                fillOpacity={0.2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }

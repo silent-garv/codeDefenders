@@ -1,9 +1,5 @@
-import { AuthGuard } from "@/components/auth/auth-guard"
+import { SettingsContent } from "@/components/settings-content"
 
-export default function Home() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
-  )
+export default function SettingsPage() {
+  return <SettingsContent />
 }

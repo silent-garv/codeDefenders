@@ -1,100 +1,51 @@
 "use client"
 
-import type React from "react"
-import { Line } from "react-chartjs-2"
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js"
-import { useTheme } from "next-themes"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
+const data = [
+  { date: "Jan", score: 75 },
+  { date: "Feb", score: 78 },
+  { date: "Mar", score: 82 },
+  { date: "Apr", score: 85 },
+  { date: "May", score: 87 },
+  { date: "Jun", score: 89 },
+  { date: "Jul", score: 87 },
+]
 
-interface SecurityScoreChartProps {
-  data: { timestamp: string; score: number }[]
+const chartConfig = {
+  score: {
+    label: "Security Score",
+    color: "hsl(var(--chart-2))",
+  },
 }
 
-const SecurityScoreChart: React.FC<SecurityScoreChartProps> = ({ data }) => {
-  const { theme } = useTheme()
-  const isDark = theme === "dark"
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100, // Set maximum value to 100 for security score
-        min: 0, // Set minimum value to 0
-        grid: {
-          color: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
-        },
-        ticks: {
-          color: isDark ? "#9CA3AF" : "#6B7280",
-          stepSize: 20, // Show ticks every 20 points
-        },
-      },
-      x: {
-        grid: {
-          color: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
-        },
-        ticks: {
-          color: isDark ? "#9CA3AF" : "#6B7280",
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        display: true,
-        labels: {
-          color: isDark ? "#F3F4F6" : "#374151",
-        },
-      },
-      tooltip: {
-        backgroundColor: isDark ? "#374151" : "#F9FAFB",
-        titleColor: isDark ? "#F3F4F6" : "#111827",
-        bodyColor: isDark ? "#D1D5DB" : "#374151",
-        borderColor: isDark ? "#4B5563" : "#E5E7EB",
-        borderWidth: 1,
-      },
-    },
-    elements: {
-      line: {
-        tension: 0.4,
-      },
-      point: {
-        radius: 4,
-        hoverRadius: 6,
-      },
-    },
-  }
-
-  const labels = data.map((item) => new Date(item.timestamp).toLocaleDateString())
-
-  const datasets = [
-    {
-      label: "Security Score",
-      data: data.map((item) => Math.min(Math.max(item.score, 0), 100)), // Clamp values between 0-100
-      borderColor: "rgb(34, 197, 94)",
-      backgroundColor: "rgba(34, 197, 94, 0.1)",
-      fill: true,
-      tension: 0.4,
-    },
-  ]
-
-  const chartData = {
-    labels,
-    datasets,
-  }
-
-  return <Line data={chartData} options={options} />
+export function SecurityScoreChart() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Security Score Trend</CardTitle>
+        <CardDescription>Security posture over time</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={data}>
+              <XAxis dataKey="date" />
+              <YAxis domain={[0, 100]} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="hsl(var(--chart-2))"
+                strokeWidth={2}
+                dot={{ fill: "hsl(var(--chart-2))" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  )
 }
-
-export default SecurityScoreChart

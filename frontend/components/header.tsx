@@ -1,65 +1,90 @@
 "use client"
 
-import Link from "next/link"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Bell, Search, User } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
-function Header() {
+export function Header() {
+  const notifications = [
+    { id: 1, title: "Critical Alert", message: "Malware detected on system", time: "2 min ago", severity: "high" },
+    { id: 2, title: "Warning", message: "Unusual network activity", time: "5 min ago", severity: "medium" },
+    { id: 3, title: "Info", message: "Security scan completed", time: "10 min ago", severity: "low" },
+  ]
+
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-      {/* left section */}
       <div className="flex items-center gap-2 px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search alerts, users, or events..." className="pl-8 w-64" />
-        </div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/">CyberSentinel</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
-
-      {/* right section */}
       <div className="ml-auto flex items-center gap-2 px-4">
-        {/* notifications */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
-                3
-              </span>
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">3</Badge>
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-56 p-0">
-            <div className="p-3 text-sm font-semibold border-b">Recent Alerts</div>
-            <ul className="max-h-56 overflow-y-auto text-sm">
-              {/* Replace with real-time data */}
-              <li className="p-3 hover:bg-muted/50 cursor-pointer">🚨 High-severity intrusion detected</li>
-              <li className="p-3 hover:bg-muted/50 cursor-pointer">⚠️ Suspicious login attempt</li>
-              <li className="p-3 hover:bg-muted/50 cursor-pointer">🛡️ Malware blocked</li>
-            </ul>
-            <Link href="/alerts" className="block text-center text-xs py-2 border-t hover:bg-muted/50">
-              View all alerts →
-            </Link>
+          <PopoverContent className="w-80" align="end">
+            <div className="space-y-4">
+              <h4 className="font-medium leading-none">Notifications</h4>
+              <div className="space-y-2">
+                {notifications.map((notification) => (
+                  <div key={notification.id} className="flex items-start space-x-2 p-2 rounded-lg hover:bg-muted/50">
+                    <div
+                      className={`w-2 h-2 rounded-full mt-2 ${
+                        notification.severity === "high"
+                          ? "bg-red-500"
+                          : notification.severity === "medium"
+                            ? "bg-yellow-500"
+                            : "bg-blue-500"
+                      }`}
+                    />
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium">{notification.title}</p>
+                      <p className="text-xs text-muted-foreground">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground">{notification.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
-
-        <ThemeToggle />
-
-        {/* settings link */}
-        <Link href="/settings" passHref legacyBehavior>
-          <Button variant="ghost" size="icon" asChild>
+        <Link href="/settings">
+          <Button variant="ghost" size="icon">
             <User className="h-4 w-4" />
           </Button>
         </Link>
+        <ThemeToggle />
       </div>
     </header>
   )
 }
 
-export { Header }
-export default Header
+// Named export for compatibility
+export { Header as default }

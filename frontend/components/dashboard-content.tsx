@@ -1,141 +1,174 @@
 "use client"
 
-import type React from "react"
-import { AlertTriangle, Activity, Shield, Users } from "react-feather"
-import { motion } from "framer-motion"
-import StatCard from "./stat-card"
-import ThreatChart from "./threat-chart"
-import AlertsChart from "./alerts-chart"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThreatChart } from "@/components/threat-chart"
+import { AlertsChart } from "@/components/alerts-chart"
+import { SecurityScoreChart } from "@/components/security-score-chart"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { AlertTriangle, Shield, Users, Activity, TrendingUp, TrendingDown } from "lucide-react"
+import Link from "next/link"
 
-interface Alert {
-  id: string
-  title: string
-  severity: "high" | "medium" | "low"
-  timestamp: string
-}
-
-interface Person {
-  id: string
-  name: string
-  riskLevel: "high" | "medium" | "low"
-}
-
-const DashboardContent: React.FC = () => {
-  const router = useRouter()
-  const alerts: Alert[] = [
-    { id: "1", title: "Phishing Attempt Detected", severity: "high", timestamp: "2023-11-15T10:00:00" },
-    { id: "2", title: "Suspicious Login from Unknown Location", severity: "medium", timestamp: "2023-11-15T11:30:00" },
-    { id: "3", title: "Malware Detected in Attachment", severity: "high", timestamp: "2023-11-15T12:45:00" },
-    { id: "4", title: "Unusual Network Activity", severity: "low", timestamp: "2023-11-15T14:00:00" },
-  ]
-
-  const people: Person[] = [
-    { id: "1", name: "John Doe", riskLevel: "high" },
-    { id: "2", name: "Jane Smith", riskLevel: "medium" },
-    { id: "3", name: "Peter Jones", riskLevel: "low" },
-    { id: "4", name: "Alice Brown", riskLevel: "high" },
-  ]
-
-  const recentAlerts: Alert[] = alerts.slice(0, 3)
-
+export function DashboardContent() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Dashboard</h1>
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link href="/alerts">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-red-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Critical Alerts</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">23</div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-red-500" />
+                +12% from last hour
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
-          onClick={() => router.push("/alerts")}
-          className="cursor-pointer transform hover:scale-105 transition-transform"
-        >
-          <StatCard
-            title="Total Alerts"
-            value={alerts.length}
-            icon={AlertTriangle}
-            color="red"
-            trend="up"
-            trendValue="12%"
-          />
-        </div>
-        <div
-          onClick={() => router.push("/alerts")}
-          className="cursor-pointer transform hover:scale-105 transition-transform"
-        >
-          <StatCard
-            title="Critical Alerts"
-            value={alerts.filter((alert) => alert.severity === "high").length}
-            icon={Shield}
-            color="yellow"
-            trend="down"
-            trendValue="5%"
-          />
-        </div>
-        <div
-          onClick={() => router.push("/people")}
-          className="cursor-pointer transform hover:scale-105 transition-transform"
-        >
-          <StatCard
-            title="High Risk Users"
-            value={people.filter((person) => person.riskLevel === "high").length}
-            icon={Users}
-            color="purple"
-          />
-        </div>
-        <div
-          onClick={() => router.push("/monitoring")}
-          className="cursor-pointer transform hover:scale-105 transition-transform"
-        >
-          <StatCard title="System Status" value="Secure" icon={Activity} color="green" />
-        </div>
+        <Link href="/monitoring">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Security Score</CardTitle>
+              <Shield className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">87%</div>
+              <Progress value={87} className="mt-2" />
+              <p className="text-xs text-muted-foreground mt-1">Excellent security posture</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/people">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <Users className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">1,247</div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                +5.2% from yesterday
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/monitoring">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Threat Level</CardTitle>
+              <Activity className="h-4 w-4 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">Medium</div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <TrendingDown className="h-3 w-3 text-green-500" />
+                Decreased from High
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <motion.div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => router.push("/monitoring")}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <ThreatChart />
-        </motion.div>
+      {/* Charts Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Threat Detection Timeline</CardTitle>
+            <CardDescription>Real-time threat detection over the last 24 hours</CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <ThreatChart />
+          </CardContent>
+        </Card>
 
-        <motion.div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => router.push("/alerts")}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <AlertsChart />
-        </motion.div>
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Alert Distribution</CardTitle>
+            <CardDescription>Breakdown of alert types</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AlertsChart />
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Alerts</h2>
-        {recentAlerts.map((alert, index) => (
-          <motion.div
-            key={alert.id}
-            className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-            onClick={() => router.push("/alerts")}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <div>
-              <p className="text-gray-800 dark:text-gray-200 font-medium">{alert.title}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{alert.timestamp}</p>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Security Score Trend</CardTitle>
+            <CardDescription>Security posture over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SecurityScoreChart />
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Recent Alerts</CardTitle>
+            <CardDescription>Latest security alerts and incidents</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                {
+                  type: "Critical",
+                  message: "Suspicious login attempt detected",
+                  time: "2 minutes ago",
+                  severity: "high",
+                },
+                {
+                  type: "Warning",
+                  message: "Unusual network traffic pattern",
+                  time: "15 minutes ago",
+                  severity: "medium",
+                },
+                { type: "Info", message: "Security scan completed successfully", time: "1 hour ago", severity: "low" },
+                { type: "Critical", message: "Malware signature detected", time: "2 hours ago", severity: "high" },
+              ].map((alert, index) => (
+                <Link key={index} href="/alerts">
+                  <div className="flex items-center space-x-4 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        alert.severity === "high"
+                          ? "bg-red-500"
+                          : alert.severity === "medium"
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                      }`}
+                    />
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            alert.severity === "high"
+                              ? "destructive"
+                              : alert.severity === "medium"
+                                ? "default"
+                                : "secondary"
+                          }
+                        >
+                          {alert.type}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">{alert.time}</span>
+                      </div>
+                      <p className="text-sm">{alert.message}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-            <div
-              className={`text-sm font-semibold ${alert.severity === "high" ? "text-red-500" : alert.severity === "medium" ? "text-yellow-500" : "text-green-500"}`}
-            >
-              {alert.severity}
-            </div>
-          </motion.div>
-        ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
-
-export default DashboardContent
