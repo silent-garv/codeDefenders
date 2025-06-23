@@ -1,14 +1,18 @@
-import { SidebarInset } from "@/components/ui/sidebar"
-import { SidebarProvider } from "@/components/ui/sidebar"
 import type React from "react"
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { AuthProvider } from "@/components/auth/auth-provider"
+import { ThemeProvider } from "@/components/theme-provider"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { Header } from "@/components/header"
+import { SidebarInset } from "@/components/ui/sidebar"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.dev",
+  title: "CyberSentinel - Security Dashboard",
+  description: "Advanced cybersecurity monitoring and alert management platform"
 }
 
 export default function RootLayout({
@@ -19,17 +23,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <Header />
-                <main className="flex-1 p-6">{children}</main>
-              </SidebarInset>
-            </SidebarProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <SidebarProvider defaultOpen={true}>
+            <AppSidebar />
+            <SidebarInset>
+              <Header />
+              <main className="flex-1 p-6">{children}</main>
+            </SidebarInset>
+          </SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
