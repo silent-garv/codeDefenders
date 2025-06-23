@@ -2,9 +2,14 @@
   "manifest_version": 3,
   "name": "CyberSentinel Extension",
   "version": "1.0",
-  "description": "Send alerts to backend via popup",
+  "description": "Blocks malicious domains using DNR",
   "permissions": [
-    "storage"
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "downloads",
+    "tabs",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -14,5 +19,14 @@
   },
   "action": {
     "default_popup": "popup.html"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
   }
 }
