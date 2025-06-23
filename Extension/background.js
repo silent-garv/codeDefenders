@@ -1,8 +1,6 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log("✅ CyberSentinel background running");
 });
-  console.log('Istalled Extension.');
-});
 
 // --- Threat Prevention Features ---
 // Keep blockedDomains in sync with content.js
@@ -71,7 +69,40 @@ async function checkWithAbuseIPDB(ipOrDomain) {
   return false;
 }
 
-// Example usage: block navigation if AbuseIPDB flags the IP/domain
+// 5. Google Safe Browsing API integration for domain checks
+async function checkWithGoogleSafeBrowsing(urlToCheck) {
+  const apiKey = 'AIzaSyA0aDP_G1ADk82n79_UbWeF2vvlrlYLAEY';
+  const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
+  const body = {
+    client: {
+      clientId: "cybersentinal-extension",
+      clientVersion: "1.0"
+    },
+    threatInfo: {
+      threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
+      platformTypes: ["ANY_PLATFORM"],
+      threatEntryTypes: ["URL"],
+      threatEntries: [
+        { url: urlToCheck }
+      ]
+    }
+  };
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    return !!(data && data.matches && data.matches.length > 0);
+  } catch (e) {
+    console.error('Safe Browsing API error:', e);
+    return false;
+  }
+}
+
+// 6. Block navigation if AbuseIPDB or Google Safe Browsing flags the IP/domain
 chrome.webRequest.onBeforeRequest.addListener(
   async function(details) {
     try {
