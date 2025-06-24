@@ -5,10 +5,33 @@ chrome.runtime.onInstalled.addListener(() => {
 // --- Threat Prevention Features ---
 const blockedDomains = ['malicious.com', 'phishing-site.com'];
 let logs = [];
-let filteredKeywords = ['malicious', 'phishing', 'attack', 'virus'];
+
+// --- Dynamic Keyword Pool for Alerts ---
+const keywordSets = [
+  ['malicious', 'phishing', 'attack', 'virus'],
+  ['trojan', 'exploit', 'ransomware', 'worm'],
+  ['spyware', 'adware', 'rootkit', 'botnet'],
+  ['keylogger', 'backdoor', 'zero-day', 'sql injection'],
+  ['xss', 'csrf', 'ddos', 'brute force'],
+  ['spoofing', 'scam', 'payload', 'threat'],
+  ['malware', 'hacker', 'breach', 'leak'],
+  ['credential', 'session', 'cookie', 'redirect'],
+  ['fake', 'clone', 'impersonate', 'steal'],
+  ['danger', 'risk', 'compromise', 'unauthorized']
+];
+let keywordIndex = 0;
+let filteredKeywords = keywordSets[0];
+
+function rotateKeywords() {
+  keywordIndex = (keywordIndex + 1) % keywordSets.length;
+  filteredKeywords = keywordSets[keywordIndex]
+    .slice()
+    .sort(() => Math.random() - 0.5); // shuffle order
+}
 
 // Helper: Log threat detection
 function logThreat(message) {
+    rotateKeywords(); // Rotate keywords for every new log/alert
     const logEntry = `[${new Date().toLocaleTimeString()}]  ${message}`;
     logs.push(logEntry);
     if (logs.length > 20) logs.shift();
@@ -17,6 +40,7 @@ function logThreat(message) {
 // 1. Check domains with APIs
 async function checkDomainSafety(url) {
     try {
+        rotateKeywords();
         // Check blockedDomains first (synchronous)
         if (blockedDomains.some(domain => url.hostname.includes(domain))) {
             logThreat(`Blocked: ${url.hostname} (in blocklist)`);
@@ -47,34 +71,9 @@ async function checkDomainSafety(url) {
     }
 }
 
-// 2. Handle navigation requests
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-        try {
-            const url = new URL(details.url);
-            // Only do synchronous checks here
-            if (blockedDomains.some(domain => url.hostname.includes(domain))) {
-                logThreat(`Blocked navigation to: ${url.hostname}`);
-                return { cancel: true };
-            }
-            
-            // Start async checks, but don't block on them
-            checkDomainSafety(url).then(result => {
-                if (result.blocked) {
-                    // Close the tab if it's still open
-                    chrome.tabs.query({url: details.url}, (tabs) => {
-                        tabs.forEach(tab => {
-                            chrome.tabs.remove(tab.id);
-                        });
-                    });
-                }
-            });
-        } catch (e) { console.error(e); }
-        return {};
-    },
-    { urls: ["<all_urls>"] },
-    ["blocking"]
-);
+// 2. Handle navigation requests (REMOVED: Manifest V3 does not allow blocking webRequest listeners)
+// All blocking is now handled by DNR rules in rules.json. Async checks below are for alerting/logging only.
+// If you want to alert or log on navigation, use webNavigation or content scripts.
 
 // 3. Handle downloads
 chrome.downloads.onCreated.addListener(function(downloadItem) {

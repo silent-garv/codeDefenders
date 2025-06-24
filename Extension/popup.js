@@ -5,9 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const keywordsList = document.getElementById('keywords-list');
   const logsList = document.getElementById('logs-list');
 
-  function showAlert(message, type = 'success') {
+  function showAlert(message, type = 'success', priority = 'normal') {
     alertBox.textContent = message;
     alertBox.className = `alert alert-${type} show`;
+    if (type === 'error') {
+      alertBox.style.color = '#c0392b'; // Red text for error
+      alertBox.style.fontWeight = 'bold';
+    } else {
+      alertBox.style.color = '';
+      alertBox.style.fontWeight = '';
+    }
+    if (priority === 'high') {
+      alertBox.innerHTML = `<span style='color:#c0392b;font-weight:bold;'>[HIGH PRIORITY]</span> ` + alertBox.innerHTML;
+    }
     setTimeout(() => {
       alertBox.classList.remove('show');
       setTimeout(() => { alertBox.style.display = 'none'; }, 400);
@@ -41,6 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Listen for real-time threat alerts from background
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg && msg.type === 'THREAT_ALERT') {
+      // If the reason contains 'blocklist' or 'AbuseIPDB', mark as high priority
+      const isHighPriority = /blocklist|AbuseIPDB/i.test(msg.reason);
+      showAlert(`Threat detected: ${msg.reason}<br><span style='font-size:0.95em;'>${msg.url}</span>`, 'error', isHighPriority ? 'high' : 'normal');
+      fetchData();
+    }
+  });
 
   sendBtn.addEventListener('click', () => {
     spinner.style.display = 'inline-block';
