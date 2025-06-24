@@ -5,6 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const keywordsList = document.getElementById('keywords-list');
   const logsList = document.getElementById('logs-list');
 
+// popup.js
+document.getElementById("send-alert").addEventListener("click", () => {
+  fetch("https://codedefenders-cih-2-0.onrender.com/alert", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: "🚨 Alert from extension popup",
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(res => res.json())
+  .then(console.log)
+  .catch(console.error)
+});
+
+
   function showAlert(message, type = 'success', priority = 'normal') {
     alertBox.textContent = message;
     alertBox.className = `alert alert-${type} show`;

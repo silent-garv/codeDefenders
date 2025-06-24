@@ -2,6 +2,24 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log("✅ CyberSentinel background running");
 });
 
+chrome.webRequest.onBeforeRequest.addListener(
+  function (details) {
+    const url = details.url;
+    if (url.includes("phishing") || url.includes("malware")) {
+      fetch("https://codedefenders-cih-2-0.onrender.com/alert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `🚨 Suspicious URL visited: ${url}`,
+          timestamp: new Date().toISOString()
+        })
+      });
+    }
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]
+);
+
 // --- Threat Prevention Features ---
 const blockedDomains = ['malicious.com', 'phishing-site.com'];
 let logs = [];
