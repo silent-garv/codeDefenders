@@ -19,6 +19,7 @@ function DashboardContent() {
 
     eventSource.onmessage = (event) => {
       const alert: Alert = JSON.parse(event.data)
+      console.log("🟢 Received alert:", alert);
       setAlerts((prev) => [alert, ...prev])
     }
 
