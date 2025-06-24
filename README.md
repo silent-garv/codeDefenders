@@ -38,7 +38,7 @@ This repository contains three main components:
 
 ---
 
-## 2. frontend/
+## 2. frontend
 
 **Next.js Dashboard & UI**
 
@@ -67,7 +67,7 @@ This repository contains three main components:
 
 ---
 
-## 3. server/
+## 3. server
 
 **Node.js Backend**
 
