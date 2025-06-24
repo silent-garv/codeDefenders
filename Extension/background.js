@@ -3,44 +3,124 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // --- Threat Prevention Features ---
-// Keep blockedDomains in sync with content.js
 const blockedDomains = ['malicious.com', 'phishing-site.com'];
+let logs = [];
+let filteredKeywords = ['malicious', 'phishing', 'attack', 'virus'];
 
-// 1. Block navigation to malicious URLs
-chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
+// Helper: Log threat detection
+function logThreat(message) {
+    const logEntry = `[${new Date().toLocaleTimeString()}] 🚨 ${message}`;
+    logs.push(logEntry);
+    if (logs.length > 20) logs.shift();
+}
+
+// 1. Check domains with APIs
+async function checkDomainSafety(url) {
     try {
-      const url = new URL(details.url);
-      if (blockedDomains.some(domain => url.hostname.includes(domain))) {
-        console.log('Blocked navigation to:', url.hostname);
-        return { cancel: true };
-      }
-    } catch (e) { console.error(e); }
-    return {};
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking"]
+        // Check blockedDomains first (synchronous)
+        if (blockedDomains.some(domain => url.hostname.includes(domain))) {
+            logThreat(`Blocked: ${url.hostname} (in blocklist)`);
+            return { blocked: true, reason: 'Domain in blocklist' };
+        }
+
+        // Check Google Safe Browsing
+        const safeBrowsingResult = await checkWithGoogleSafeBrowsing(url.href);
+        if (safeBrowsingResult) {
+            logThreat(`Blocked by Google Safe Browsing: ${url.href}`);
+            return { blocked: true, reason: 'Flagged by Google Safe Browsing' };
+        }
+
+        // Check AbuseIPDB
+        const abuseIPDBResult = await checkWithAbuseIPDB(url.hostname);
+        if (abuseIPDBResult) {
+            logThreat(`Blocked by AbuseIPDB: ${url.hostname}`);
+            return { blocked: true, reason: 'Flagged by AbuseIPDB' };
+        }
+
+        return { blocked: false };
+    } catch (e) {
+        console.error('Error checking domain safety:', e);
+        return { blocked: false };
+    }
+}
+
+// 2. Handle navigation requests
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+        try {
+            const url = new URL(details.url);
+            // Only do synchronous checks here
+            if (blockedDomains.some(domain => url.hostname.includes(domain))) {
+                logThreat(`Blocked navigation to: ${url.hostname}`);
+                return { cancel: true };
+            }
+            
+            // Start async checks, but don't block on them
+            checkDomainSafety(url).then(result => {
+                if (result.blocked) {
+                    // Close the tab if it's still open
+                    chrome.tabs.query({url: details.url}, (tabs) => {
+                        tabs.forEach(tab => {
+                            chrome.tabs.remove(tab.id);
+                        });
+                    });
+                }
+            });
+        } catch (e) { console.error(e); }
+        return {};
+    },
+    { urls: ["<all_urls>"] },
+    ["blocking"]
 );
 
-// 2. Cancel downloads from flagged domains
+// 3. Handle downloads
 chrome.downloads.onCreated.addListener(function(downloadItem) {
-  try {
-    const url = new URL(downloadItem.url);
-    if (blockedDomains.some(domain => url.hostname.includes(domain))) {
-      chrome.downloads.cancel(downloadItem.id, () => {
-        console.log('Blocked download from:', url.hostname);
-      });
-    }
-  } catch (e) { console.error(e); }
+    try {
+        const url = new URL(downloadItem.url);
+        // Immediate check
+        if (blockedDomains.some(domain => url.hostname.includes(domain))) {
+            chrome.downloads.cancel(downloadItem.id);
+            logThreat(`Blocked download from: ${url.hostname}`);
+            return;
+        }
+        
+        // Async checks
+        checkDomainSafety(url).then(result => {
+            if (result.blocked) {
+                chrome.downloads.cancel(downloadItem.id);
+                logThreat(`Cancelled download from ${url.hostname}: ${result.reason}`);
+            }
+        });
+    } catch (e) { console.error(e); }
 });
 
-// 3. Auto-close the tab if a high-severity threat is detected
-chrome.runtime.onMessage.addListener((msg, sender) => {
-  if (msg && msg.type === 'CLOSE_TAB' && sender.tab && sender.tab.id) {
-    chrome.tabs.remove(sender.tab.id, () => {
-      console.log('Closed tab due to high-severity threat');
-    });
-  }
+// 4. Log visited websites
+chrome.webNavigation.onCommitted.addListener((details) => {
+    if (details.frameId === 0) {
+        const logEntry = `[${new Date().toLocaleTimeString()}] Visited: ${details.url}`;
+        logs.push(logEntry);
+        if (logs.length > 20) logs.shift();
+    }
+});
+
+// 5. Handle messages from popup and content scripts
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.type === 'CLOSE_TAB' && sender.tab?.id) {
+        chrome.tabs.remove(sender.tab.id);
+        logThreat(`Closed tab due to high-severity threat: ${sender.tab.url}`);
+        sendResponse({ success: true });
+    }
+    else if (msg.type === 'SEND_ALERT') {
+        logThreat(msg.reason || 'Manual alert');
+        sendResponse({ success: true });
+    }
+    else if (msg.type === 'GET_DATA') {
+        sendResponse({
+            logs: logs.slice().reverse(),
+            keywords: filteredKeywords
+        });
+    }
+    return true;
 });
 
 // 4. AbuseIPDB API integration for IP/domain reputation
@@ -101,53 +181,3 @@ async function checkWithGoogleSafeBrowsing(urlToCheck) {
     return false;
   }
 }
-
-// 6. Block navigation if domain is in blockedDomains (synchronous only)
-chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
-    try {
-      const url = new URL(details.url);
-      if (blockedDomains.some(domain => url.hostname.includes(domain))) {
-        console.log('Blocked navigation to:', url.hostname);
-        return { cancel: true };
-      }
-    } catch (e) { console.error(e); }
-    return {};
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking"]
-);
-
-// Store logs and filtered keywords
-let logs = [];
-let filteredKeywords = ['malicious', 'phishing', 'attack', 'virus'];
-
-// Log every visited website
-chrome.webNavigation.onCommitted.addListener((details) => {
-  if (details.frameId === 0) {
-    const logEntry = `[${new Date().toLocaleTimeString()}] Visited: ${details.url}`;
-    logs.push(logEntry);
-    if (logs.length > 20) logs.shift(); // keep last 20 logs
-  }
-});
-
-// Listen for messages from popup
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg && msg.type === 'SEND_ALERT') {
-    const logEntry = `[${new Date().toLocaleTimeString()}] 🚨 Alert sent: ${msg.reason || 'Manual'}`;
-    logs.push(logEntry);
-    if (logs.length > 20) logs.shift();
-    sendResponse({ success: true });
-    return true;
-  }
-  if (msg && msg.type === 'GET_DATA') {
-    sendResponse({
-      logs: logs.slice().reverse(), // latest first
-      keywords: filteredKeywords
-    });
-    return true;
-  }
-});
-
-// You can still use Google Safe Browsing and AbuseIPDB checks, but NOT in a blocking listener.
-// For example, you could notify the user or close the tab after navigation if a threat is detected.

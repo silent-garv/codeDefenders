@@ -2,9 +2,14 @@
   "manifest_version": 3,
   "name": "CyberSentinel Extension",
   "version": "1.0",
-  "description": "Blocks malicious domains using DNR",
+  "description": "Blocks malicious domains using DNR and background scripts.",
   "permissions": [
-    "storage"
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "downloads",
+    "tabs",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"
