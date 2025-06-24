@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
@@ -24,15 +24,19 @@ app.get('/events', (req, res) => {
   res.flushHeaders();
 
   clients.push(res);
+  console.log("New client connected for SSE");
+
 
   req.on('close', () => {
     clients = clients.filter(client => client !== res);
+    console.log("Client disconnected");
   });
 });
 
 // Alert route: Extension posts here
 app.post('/alert', (req, res) => {
   const alert = req.body;
+  console.log("Alert received:", alert);
 
   if (!alert.message) {
     return res.status(400).json({ error: 'Alert message required' });
