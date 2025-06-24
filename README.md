@@ -8,7 +8,7 @@ This repository contains three main components:
 
 ---
 
-## 1. Extension/
+## 1. Extension
 
 **CyberSentinel Chrome Extension**
 
