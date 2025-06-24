@@ -92,7 +92,7 @@ function checkInsecureCookies() {
 // Call a cybersecurity API for domain reputation (placeholder)
 async function checkDomainReputationAPI(domain) {
     
-    const apiUrl = `https://api.example.com/check-domain?domain=${encodeURIComponent(domain)}`;
+    const apiUrl = `https://phishtank.com/check-domain?domain=${encodeURIComponent(domain)}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) return null;
