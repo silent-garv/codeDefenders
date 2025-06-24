@@ -60,7 +60,3 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CyberSentinel backend listening on port ${PORT}`);
 });
-res.setHeader("Content-Type", "text/event-stream");
-res.setHeader("Cache-Control", "no-cache");
-res.setHeader("Connection", "keep-alive");
-res.flushHeaders(); // IMPORTANT
