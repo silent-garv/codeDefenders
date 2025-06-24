@@ -2,7 +2,7 @@
 
 This repository contains three main components:
 
-- **Extension/**: Chrome extension (CyberSentinel) for real-time cybersecurity threat detection and protection.
+- **Extension**: Chrome extension (CyberSentinel) for real-time cybersecurity threat detection and protection.
 - **frontend/**: Next.js-based dashboard and UI for monitoring, alerting, and configuration.
 - **server/**: Node.js backend for logging, alerting, and integration with external threat intelligence APIs.
 
