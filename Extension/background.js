@@ -10,7 +10,7 @@ chrome.webRequest.onBeforeRequest.addListener(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: `🚨 Suspicious URL visited: ${url}`,
+          message: ` Suspicious URL visited: ${url}`,
           timestamp: new Date().toISOString()
         })
       });
@@ -20,11 +20,11 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["blocking"]
 );
 
-// --- Threat Prevention Features ---
+// prevention of threat 
 const blockedDomains = ['malicious.com', 'phishing-site.com'];
 let logs = [];
 
-// --- Dynamic Keyword Pool for Alerts ---
+//keyword based detection
 const keywordSets = [
   ['malicious', 'phishing', 'attack', 'virus'],
   ['trojan', 'exploit', 'ransomware', 'worm'],
@@ -55,7 +55,7 @@ function logThreat(message) {
     if (logs.length > 20) logs.shift();
 }
 
-// 1. Check domains with APIs
+//  Check domains with APIs
 async function checkDomainSafety(url) {
     try {
         rotateKeywords();
@@ -88,12 +88,9 @@ async function checkDomainSafety(url) {
         return { blocked: false };
     }
 }
+ 
 
-// 2. Handle navigation requests (REMOVED: Manifest V3 does not allow blocking webRequest listeners)
-// All blocking is now handled by DNR rules in rules.json. Async checks below are for alerting/logging only.
-// If you want to alert or log on navigation, use webNavigation or content scripts.
-
-// 3. Handle downloads
+//  Handle downloads
 chrome.downloads.onCreated.addListener(function(downloadItem) {
     try {
         const url = new URL(downloadItem.url);
@@ -114,7 +111,7 @@ chrome.downloads.onCreated.addListener(function(downloadItem) {
     } catch (e) { console.error(e); }
 });
 
-// 4. Log visited websites
+//  Log visited websites
 chrome.webNavigation.onCommitted.addListener((details) => {
     if (details.frameId === 0) {
         const logEntry = `[${new Date().toLocaleTimeString()}] Visited: ${details.url}`;
@@ -123,7 +120,7 @@ chrome.webNavigation.onCommitted.addListener((details) => {
     }
 });
 
-// 5. Handle messages from popup and content scripts
+// Handle messages from popup and content scripts
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'CLOSE_TAB' && sender.tab?.id) {
         chrome.tabs.remove(sender.tab.id);
@@ -143,7 +140,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
 });
 
-// 4. AbuseIPDB API integration for IP/domain reputation
+//  AbuseIPDB API integration for IP/domain reputation
 async function checkWithAbuseIPDB(ipOrDomain) {
   const apiKey = 'cc32320ab72c3bc44ff636f27a481beb868d26a04c7f4d85feaa6dc5fdde0139a0947b06ec46d1f2';
   const apiUrl = `https://api.abuseipdb.com/api/v2/check?ipAddress=${encodeURIComponent(ipOrDomain)}&maxAgeInDays=90`;
@@ -169,7 +166,7 @@ async function checkWithAbuseIPDB(ipOrDomain) {
   return false;
 }
 
-// 5. Google Safe Browsing API integration for domain checks
+//  Google Safe Browsing API integration for domain checks
 async function checkWithGoogleSafeBrowsing(urlToCheck) {
   const apiKey = 'AIzaSyA0aDP_G1ADk82n79_UbWeF2vvlrlYLAEY';
   const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
@@ -202,7 +199,7 @@ async function checkWithGoogleSafeBrowsing(urlToCheck) {
   }
 }
 
-// 6. Broadcast alerts to content scripts and popup
+//  Broadcast alerts to content scripts and popup
 function broadcastThreatAlert(reason, url) {
     chrome.tabs.query({}, function(tabs) {
         tabs.forEach(tab => {

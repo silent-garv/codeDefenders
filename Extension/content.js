@@ -63,7 +63,7 @@ function detectPhishingPage() {
     
     // Show alert if threat is detected
     if (detected) {
-        const alertMessage = `⚠️ SECURITY ALERT ⚠️\n\n` +
+        const alertMessage = ` SECURITY ALERT \n\n` +
                           `Threat Type: ${threatType}\n\n` +
                           `Details:\n- ${details.join('\n- ')}`;
         alert(alertMessage);
@@ -105,7 +105,7 @@ async function checkDomainReputationAPI(domain) {
     return { detected: false };
 }
 
-// --- Main Threat Detection Runner ---
+//  Main Threat Detection Runner 
 (async function runAllThreatChecks() {
     let threatDetected = false;
     let threatDetails = [];
@@ -149,7 +149,7 @@ async function checkDomainReputationAPI(domain) {
     }
 })();
 
-// --- Threat Prevention Features (Content Script) ---
+//Threat prevention 
 const blockedDomains = ['malicious.com', 'phishing-site.com'];
 
 // 3. Prevent suspicious form submissions
@@ -171,7 +171,7 @@ blockSuspiciousForms();
 const observer = new MutationObserver(blockSuspiciousForms);
 observer.observe(document.body, { childList: true, subtree: true });
 
-// 4. Intercept and block malicious fetch() and XMLHttpRequest calls
+//  Intercept and block malicious fetch() and XMLHttpRequest calls
 (function() {
   const originalFetch = window.fetch;
   window.fetch = function(...args) { 
@@ -196,7 +196,7 @@ observer.observe(document.body, { childList: true, subtree: true });
   };
 })();
 
-// 5. Stop execution of dangerous scripts (like eval, atob, execCommand)
+//  Stop execution of dangerous scripts (like eval, atob, execCommand)
 (function() {
   window.eval = function() {
     console.log('Blocked eval()');
@@ -212,16 +212,14 @@ observer.observe(document.body, { childList: true, subtree: true });
   };
 })();
 
-// Optional: Auto-close tab if high-severity threat is detected
 function autoCloseTabIfHighThreat() {
-  // Example: If a threat is detected, send message to background
   if (window.location.hostname.includes('malicious.com')) {
     chrome.runtime.sendMessage({ type: 'CLOSE_TAB' });
   }
 }
 autoCloseTabIfHighThreat();
 
-// --- SQL Injection API Integration ---
+// SQL Injection API Integration 
 const checkedURLs = new Set();
 
 async function checkURLForSQLInjectionAPI(url) {
