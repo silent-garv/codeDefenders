@@ -9,7 +9,7 @@ let filteredKeywords = ['malicious', 'phishing', 'attack', 'virus'];
 
 // Helper: Log threat detection
 function logThreat(message) {
-    const logEntry = `[${new Date().toLocaleTimeString()}] 🚨 ${message}`;
+    const logEntry = `[${new Date().toLocaleTimeString()}]  ${message}`;
     logs.push(logEntry);
     if (logs.length > 20) logs.shift();
 }
@@ -20,6 +20,7 @@ async function checkDomainSafety(url) {
         // Check blockedDomains first (synchronous)
         if (blockedDomains.some(domain => url.hostname.includes(domain))) {
             logThreat(`Blocked: ${url.hostname} (in blocklist)`);
+            broadcastThreatAlert('Domain in blocklist', url.href);
             return { blocked: true, reason: 'Domain in blocklist' };
         }
 
@@ -27,6 +28,7 @@ async function checkDomainSafety(url) {
         const safeBrowsingResult = await checkWithGoogleSafeBrowsing(url.href);
         if (safeBrowsingResult) {
             logThreat(`Blocked by Google Safe Browsing: ${url.href}`);
+            broadcastThreatAlert('Flagged by Google Safe Browsing', url.href);
             return { blocked: true, reason: 'Flagged by Google Safe Browsing' };
         }
 
@@ -34,6 +36,7 @@ async function checkDomainSafety(url) {
         const abuseIPDBResult = await checkWithAbuseIPDB(url.hostname);
         if (abuseIPDBResult) {
             logThreat(`Blocked by AbuseIPDB: ${url.hostname}`);
+            broadcastThreatAlert('Flagged by AbuseIPDB', url.href);
             return { blocked: true, reason: 'Flagged by AbuseIPDB' };
         }
 
@@ -180,4 +183,17 @@ async function checkWithGoogleSafeBrowsing(urlToCheck) {
     console.error('Safe Browsing API error:', e);
     return false;
   }
+}
+
+// 6. Broadcast alerts to content scripts and popup
+function broadcastThreatAlert(reason, url) {
+    chrome.tabs.query({}, function(tabs) {
+        tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, {
+                type: 'THREAT_ALERT',
+                reason,
+                url
+            });
+        });
+    });
 }
